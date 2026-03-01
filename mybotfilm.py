@@ -367,6 +367,27 @@ def delete_film(message):
         conn.close()
 
 # ============================================
+# ЗАГЛУШКА ДЛЯ RENDER (ОТКРЫВАЕТ ПОРТ)
+# ============================================
+
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'OK')
+
+def run_health_server():
+    server = HTTPServer(('0.0.0.0', 10000), HealthHandler)
+    server.serve_forever()
+
+# Запускаем сервер в фоновом потоке
+threading.Thread(target=run_health_server, daemon=True).start()
+print("✅ Health server started on port 10000")
+
+# ============================================
 # 7. ЗАПУСК БОТА
 # ============================================
 
@@ -381,4 +402,5 @@ if __name__ == '__main__':
         print("❌ Ошибка подключения к MySQL")
     
     # Запускаем бота
+
     bot.infinity_polling()
